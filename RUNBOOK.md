@@ -33,9 +33,9 @@
 | 참여형(테스트) | 자기 확인 | "당신 프롬프트 몇 점? 3초 체크" |
 | 서사형 | 공감 | 실제 사례가 확인될 때만. 지어낸 경험담 금지 |
 - 커버에는 **숫자**를 넣는다(“3개”, “10분”, “4단계”) → 끝까지 보게 만드는 장치.
-- 커버 voice는 **2.5초 이내**, 화면 문구와 같은 말. 인사·자기소개·"오늘은"으로 시작 금지.
+- 훅은 0초 프레임부터 화면에 떠 있어야 함. 인사·자기소개·"오늘은"으로 시작 금지.
 
-**리텐션**: 렌더러가 요소를 하나씩 등장시키므로(1~2초마다 화면 변화) 슬라이드당 요소 2~4개로 쪼개라. 한 슬라이드 voice는 1문장. 전체 18~30초. 마지막 CTA는 짧게 끝내서 자연스럽게 첫 장으로 루프.
+**리텐션**: 데모형 렌더러가 타이핑→답변 한 줄씩→결과 카드로 1초마다 화면을 바꾼다. 답변 줄은 5~6개, 전체 14~20초. 결과 카드 뒤 바로 끝나서 첫 프레임으로 루프.
 
 **공유(DM 보내기) = 비팔로워 도달 최강 신호.** 매 게시물에 "누구에게 보낼지"를 설계:
 - 마지막 장: "**○○인 친구한테 보내주세요**"(시험기간인/팀플 같이 하는/엑셀 못하는 동기) — 구체적일수록 공유↑
@@ -53,8 +53,29 @@
 
 **하지 말 것**: 같은 영상 재업로드, 남의 영상·캡처 사용, 지어낸 수치·후기, 해시태그 도배, 낚시성 훅인데 내용 부실(이탈률↑로 오히려 손해).
 
+## 1-2. 릴스 포맷 = "화면 데모형" (2026-10-29 개편, 사용자 피드백 반영)
+사용자 피드백: 예전 릴스(베이지 슬라이드+TTS)는 "디자인 별로, 다 아는 내용, TTS 별로" → **폐기**.
+잘 되는 국내 AI 계정 조사 결과(@hpd.ai 55만·8.7만, @zun_it_ 12.6만, @ai.asap.kr 59만):
+- 잘 되는 릴스는 **설명하지 않고 보여준다**: 실제 화면(채팅·터미널·결과물) + "POV: ~" 한 줄 + 음악. 나레이션 없음.
+- 다크 배경, 크고 굵은 흰 글씨, 키워드 하나만 노랑/파랑 강조.
+- 내용은 "AI 쓰는 법"이 아니라 **구체적 상황 + 눈에 보이는 결과**(점수가 깎인다, 메일이 완성된다, 숨은 의도가 해석된다).
+- 무료 자료 나눔(댓글/프로필 링크)과 "AI는 왜 ~할까?" 같은 호기심 질문도 잘 됨.
+
+그래서 릴스는 `pipeline/reel_demo.py` 한 가지 포맷으로 만든다:
+- 상단: POV 칩("POV: 레포트 제출 10분 전") + 훅 2줄(숫자 1개는 `**노랑**`).
+- 중앙: AI 채팅 창 — 프롬프트가 타이핑되고, 전송 후 답변이 한 줄씩 뜸(1초 간격 화면 변화 = 리텐션).
+- 마지막: 노란 결과 카드(한 줄 요약 + "○○인 친구한테 보내기").
+- 소리: 나레이션 없음. `pipeline/audio.py`가 저작권 없는 로파이 비트 + 타자/전송/팝 효과음 합성. music_seed(0~2)로 코드 진행 바꿈.
+- 길이 14~20초(자동 계산). 짧아서 반복 시청(루프)이 잘 됨.
+
+**콘텐츠 규칙 (데모형)**
+- "다 아는 내용" 금지: "NotebookLM 쓰세요", "ChatGPT로 요약하세요" 같은 기본기 X. **특정 상황(POV) + 비틀린 지시**(감점만 해줘 / 우겨봐 / 숨은 의도 해석해줘 / 압박면접관 해줘)로 결과가 새롭게 보이게.
+- 답변(response)은 Claude가 그 프롬프트에 실제로 낼 법한 내용을 직접 써서 넣는다. 수치가 들어가면 footnote에 "예시 ○○로 돌려본 결과"처럼 예시임을 밝힌다. 특정 회사 앱 화면 흉내 금지(창 제목은 "AI 채팅").
+- 답변 줄 5~6개: 첫 줄 `big`(결과 한 방), 이어서 `minus`/`plus`(태그+한 줄), 마지막 `note`(복붙 포인트). 한 줄 28자 이내 권장.
+- 프롬프트 전문은 캡션에 복붙용으로 넣는다(저장·공유 이유).
+
 ## 2. 매일 할 일 (예약 작업 1회 실행 = 게시물 1개)
-0. 환경: 비공개 저장소 `coomind/ddalkkak-secrets`를 add_repo 후 clone → `export IG_SECRET_FILE=/home/claude/ddalkkak-secrets/ig_token.json` (내용: {"user_token": "..."} — 페이지 토큰은 실행 시 자동 발급, 사용자 토큰 만료 2026-12-28 전 재발급 필요) / `export SSL_CERT_FILE=/root/.ccr/ca-bundle.crt` / `pip install gTTS --break-system-packages -q`
+0. 환경: 비공개 저장소 `coomind/ddalkkak-secrets`를 add_repo 후 clone → `export IG_SECRET_FILE=/home/claude/ddalkkak-secrets/ig_token.json` (내용: {"user_token": "..."} — 페이지 토큰은 실행 시 자동 발급, 사용자 토큰 만료 2026-12-28 전 재발급 필요) / `export SSL_CERT_FILE=/root/.ccr/ca-bundle.crt`
 1. `git pull` 후 `state/log.jsonl`, `state/backlog.json`, `LEARNINGS.md` 읽기.
 2. **어제 이전 게시물 성과 수집**: `python3 pipeline/ig.py recent 10` → `state/metrics.jsonl`에 append.
 3. **오늘 포맷 결정** (주간 리듬, 성과 학습으로 조정 가능):
@@ -62,15 +83,16 @@
    - 릴스도 같은 spec으로 캐러셀을 함께 만들어 둔다(재활용 가능).
 4. **주제 선정**: backlog 상위 + 최근 24~72시간 AI 뉴스 웹검색에서 기둥에 맞는 것 1개. 최근 14일 log와 겹치면 제외.
 5. **사실 검증 (필수)**: 툴 이름·기능·메뉴 위치·가격·무료 여부를 공식 문서/공지에서 웹검색으로 확인. 확인 못 한 기능은 쓰지 않는다. spec.sources에 URL 기록. 프롬프트는 범용적으로(특정 UI에 의존 X).
-6. **spec 작성** (`posts/YYYY-MM-DD-slug/spec.json`, 형식은 기존 spec 참고):
-   - 슬라이드 5~8장: cover → step/prompt ×3~5 → checklist(선택) → cta
-   - **cover 훅**: 1-1의 7유형 중 하나 + 숫자 포함. 최근 3개 게시물과 다른 유형을 우선.
-   - 핵심 단어는 `**강조**`. 한 슬라이드 = 한 메시지, 본문 2줄 이내.
-   - 마지막 cta: **"○○인 친구한테 보내주세요"(공유 유도) + 저장 + 팔로우**. 특정 상황의 사람을 지목해야 공유가 일어남.
-   - voice: 슬라이드당 1문장, 전체 릴스 15~35초. 첫 문장 = 훅 그대로.
-   - caption: 첫 줄 훅+키워드 → 2~3줄 맥락 → 1️⃣2️⃣3️⃣ 요약 → 공유 CTA. hashtags 3~5개.
-7. **렌더**: `SSL_CERT_FILE=/root/.ccr/ca-bundle.crt python3 pipeline/render.py posts/<id>/spec.json`
-8. **눈으로 검수**: carousel 전 장 + reel frames 1·마지막 장을 Read로 확인. 글자 넘침·잘림·오타·사실 오류 있으면 수정 후 재렌더. 릴스 길이 35초 초과 시 voice 줄이기.
+6. **spec 작성** (`posts/YYYY-MM-DD-slug/spec.json`)
+   - **릴스**: 데모형. `posts/2026-10-31-prof-deduct/spec.json`을 그대로 본뜬다 (format "demo", pov, hook, prompt, response[], footnote, payoff{kicker,big,sub,cta}, music_seed, caption, first_comment, hashtags). 1-2 규칙 준수.
+   - **캐러셀**: 슬라이드 5~8장(cover → step/prompt ×3~5 → checklist(선택) → cta), `posts/2026-10-30-exam-cram/spec.json` 형식. 다크 디자인은 config.design에서 자동 적용.
+   - **훅**: 1-1의 7유형 중 하나 + 숫자. 최근 3개 게시물과 다른 유형 우선.
+   - 마지막: **"○○인 친구한테 보내기"(공유 유도)**. 특정 상황의 사람을 지목.
+   - caption: 첫 줄 훅+키워드 → 2~3줄 맥락 → 복붙 프롬프트 → 공유 CTA. hashtags 3~5개.
+7. **렌더**
+   - 릴스: `python3 pipeline/reel_demo.py posts/<id>/spec.json` (약 40초 소요) → out/reel/reel.mp4, cover.jpg, qa_*.jpg
+   - 캐러셀: `python3 pipeline/render.py posts/<id>/spec.json --no-reel`
+8. **눈으로 검수**: 릴스는 cover.jpg와 qa_*.jpg 4장, 캐러셀은 전 장을 Read로 확인. 글자 넘침·잘림·오타·사실 오류·답변 창 밖으로 밀림이 있으면 문장을 줄이고 재렌더.
 9. `git add posts/<id> && git commit && git push` (미디어가 공개 URL이 되도록). 푸시 후 30초 대기(jsDelivr 반영).
 10. **게시**: `python3 pipeline/ig.py publish posts/<id> reel|carousel` → 반환 media_id/permalink와 hook_type·pillar·format·길이(초)를 `state/log.jsonl`에 append 후 다시 push.
 11. 실패 시: 에러 원인 기록, 1회 재시도. 그래도 실패하면 게시하지 말고 log에 failed 기록 후 사용자에게 알림.

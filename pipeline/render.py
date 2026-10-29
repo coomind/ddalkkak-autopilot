@@ -38,12 +38,12 @@ h1 { font-size:%(h1)dpx; line-height:1.18; font-weight:900; }
 h2 { font-size:%(h2)dpx; line-height:1.22; font-weight:850; }
 .num { font-size:40px; font-weight:900; color:%(accent)s; }
 p, li { font-size:%(p)dpx; line-height:1.5; font-weight:500; color:%(ink2)s; }
-mark { background:linear-gradient(transparent 55%%, %(mark)s 55%%); color:inherit; padding:0 4px; }
-.prompt { background:%(ink)s; color:#F5F5F5; border-radius:28px; padding:62px 50px 50px; font-size:%(prompt)dpx; line-height:1.55; font-weight:500; position:relative; }
-.prompt .label { position:absolute; top:-22px; left:36px; background:%(mark)s; color:%(ink)s; font-size:26px; font-weight:800; padding:8px 18px; border-radius:999px; }
+mark { background:none; color:%(mark)s; padding:0; }
+.prompt { background:%(panel)s; border:2px solid %(panel_line)s; color:#F2F2F6; border-radius:28px; padding:62px 50px 50px; font-size:%(prompt)dpx; line-height:1.55; font-weight:500; position:relative; }
+.prompt .label { position:absolute; top:-22px; left:36px; background:%(mark)s; color:#0B0B0D; font-size:26px; font-weight:800; padding:8px 18px; border-radius:999px; }
 ul { list-style:none; display:flex; flex-direction:column; gap:22px; }
 li { display:flex; gap:18px; align-items:flex-start; }
-li .ck { flex:none; width:46px; height:46px; border-radius:12px; background:%(accent)s; color:#fff; font-weight:900; display:flex; align-items:center; justify-content:center; font-size:28px; margin-top:6px; }
+li .ck { flex:none; width:46px; height:46px; border-radius:12px; background:%(accent)s; color:#0B0B0D; font-weight:900; display:flex; align-items:center; justify-content:center; font-size:28px; margin-top:6px; }
 .bottom { display:flex; justify-content:space-between; align-items:center; font-size:30px; font-weight:700; color:%(muted)s; }
 .swipe { color:%(ink)s; }
 .bignum { position:absolute; right:60px; top:%(bn_top)dpx; font-size:300px; font-weight:900; line-height:1; color:transparent; -webkit-text-stroke:4px %(accent)s; opacity:.28; }
@@ -58,7 +58,7 @@ def slide_html(s, idx, total, w, h, reel=False):
     c = CONFIG["design"]
     scale = dict(
         w=w, h=h, font=FONT, bg=c["bg"], ink=c["ink"], ink2=c["ink2"], muted=c["muted"],
-        accent=c["accent"], mark=c["mark"], pad_x=84,
+        accent=c["accent"], mark=c["mark"], panel=c.get("panel","#17171C"), panel_line=c.get("panel_line","#2A2A31"), pad_x=84,
         pad_top=300 if reel else 80, bn_top=340 if reel else 110, pad_bottom=330 if reel else 80,
         gap=48 if reel else 40, h1=128 if reel else 112, h2=100 if reel else 88,
         p=58 if reel else 46, prompt=48 if reel else 42, sub=56 if reel else 50,

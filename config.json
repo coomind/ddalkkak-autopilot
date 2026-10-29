@@ -2,16 +2,18 @@
   "handle": "@ai.ddalkkak",
   "series_default": "AI 꿀팁",
   "design": {
-    "bg": "#F3F0E8",
-    "ink": "#111111",
-    "ink2": "#2B2B2B",
-    "muted": "#8A857A",
-    "accent": "#3D5AFE",
-    "mark": "#D7FF3A"
+    "bg": "#0B0B0D",
+    "ink": "#FFFFFF",
+    "ink2": "#D2D2DA",
+    "muted": "#6E6E78",
+    "accent": "#FFD60A",
+    "mark": "#FFD60A",
+    "panel": "#17171C",
+    "panel_line": "#2A2A31"
   },
   "voice": {
-    "engine": "gtts",
-    "tempo": 1.3
+    "engine": "none",
+    "note": "TTS 폐기(품질 낮음). 릴스는 pipeline/audio.py 로파이 비트+UI 효과음."
   },
   "metricool": {
     "blogId": null,
@@ -21,5 +23,6 @@
   "ig_api_host": "https://graph.facebook.com",
   "ig_api_version": "v23.0",
   "ig_user_id": "17841432865245021",
-  "fb_page_id": "1438631989325735"
+  "fb_page_id": "1438631989325735",
+  "reel_format": "demo"
 }

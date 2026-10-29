@@ -2,151 +2,182 @@
  {
   "pillar": "study",
   "idea": "시험 3일 전, PDF로 AI 예상문제 뽑는 루틴",
-  "status": "done"
- },
- {
-  "pillar": "work",
-  "idea": "엑셀 수식 몰라도 됨: AI한테 이렇게 물어보면 수식이 나옴",
-  "status": ""
+  "status": "done",
+  "format": "old"
  },
  {
   "pillar": "study",
-  "idea": "논문 30쪽, AI로 10분 만에 핵심 파악하는 질문 5개",
-  "status": ""
+  "idea": "POV 제출 10분 전: 교수님 빙의시켜서 감점만 받기",
+  "status": "ready",
+  "format": "demo",
+  "post": "2026-10-31-prof-deduct"
  },
  {
   "pillar": "work",
-  "idea": "회의록 정리 3초컷: 녹음 → AI 요약 프롬프트",
-  "status": ""
+  "idea": "POV 상사 카톡 '이거 좀 봐줄래?' → AI한테 숨은 의도 해석시키기",
+  "status": "",
+  "format": "demo"
  },
  {
   "pillar": "study",
-  "idea": "발표 PPT 목차부터 대본까지 AI로 1시간 컷",
-  "status": ""
+  "idea": "AI한테 '내 답 틀렸다고 우겨봐' 시키면 진짜 실력 나옴 (반박 공부법)",
+  "status": "",
+  "format": "demo"
  },
  {
   "pillar": "work",
-  "idea": "상사한테 보내는 메일, AI로 톤 맞추는 프롬프트",
-  "status": ""
+  "idea": "거절 메일 3초컷: '정중하지만 확실하게 NO' 프롬프트",
+  "status": "",
+  "format": "demo"
  },
  {
   "pillar": "study",
-  "idea": "과제 표절검사 걱정 줄이는 AI 활용 선 (해도 되는 것 vs 안 되는 것)",
-  "status": ""
+  "idea": "팀플 무임승차 잡는 법: 카톡 대화 붙여넣고 기여도 표 뽑기",
+  "status": "",
+  "format": "demo"
+ },
+ {
+  "pillar": "work",
+  "idea": "면접 전날: AI를 압박면접관으로 만들어서 꼬리질문 10개 받기",
+  "status": "",
+  "format": "demo"
+ },
+ {
+  "pillar": "study",
+  "idea": "교수님 메일 쓰다 30분 날리는 사람 → 상황만 말하면 완성",
+  "status": "",
+  "format": "demo"
+ },
+ {
+  "pillar": "work",
+  "idea": "엑셀 스샷 한 장 올리면 수식 짜주는 거 아는 사람?",
+  "status": "",
+  "format": "demo"
+ },
+ {
+  "pillar": "study",
+  "idea": "AI가 지어낸 참고문헌 3초 만에 들키는 질문",
+  "status": "",
+  "format": "demo"
+ },
+ {
+  "pillar": "work",
+  "idea": "회의 녹음 그대로 넣고 '누가 뭘 하기로 했는지만' 뽑기",
+  "status": "",
+  "format": "demo"
+ },
+ {
+  "pillar": "study",
+  "idea": "자소서 AI 티 나는 문장 TOP5 + 사람처럼 고치는 프롬프트",
+  "status": "",
+  "format": "demo"
+ },
+ {
+  "pillar": "work",
+  "idea": "'검토 부탁드립니다' 받고 뭐라 답할지 모를 때 쓰는 프롬프트",
+  "status": "",
+  "format": "demo"
+ },
+ {
+  "pillar": "study",
+  "idea": "발표 대본 → 예상 질문 + 모범답변까지 뽑는 법",
+  "status": "",
+  "format": "demo"
+ },
+ {
+  "pillar": "work",
+  "idea": "신입이 제일 많이 혼나는 보고 방식, AI로 두괄식 변환",
+  "status": "",
+  "format": "demo"
+ },
+ {
+  "pillar": "study",
+  "idea": "강의 PPT 80장 → '시험에 나올 것만' 1장 요약",
+  "status": "",
+  "format": "demo"
+ },
+ {
+  "pillar": "work",
+  "idea": "연봉협상·조건협상 문자, AI로 미리 시뮬레이션하기",
+  "status": "",
+  "format": "demo"
+ },
+ {
+  "pillar": "study",
+  "idea": "같은 질문인데 답이 2배 좋아지는 한 줄: '먼저 나한테 질문해'",
+  "status": "",
+  "format": "demo"
+ },
+ {
+  "pillar": "work",
+  "idea": "이력서 '열심히 했습니다' → 숫자 있는 성과 문장으로",
+  "status": "",
+  "format": "demo"
+ },
+ {
+  "pillar": "study",
+  "idea": "원서 영어 논문, '고딩한테 설명하듯' 한 줄이면 끝",
+  "status": "",
+  "format": "demo"
  },
  {
   "pillar": "tool",
-  "idea": "ChatGPT·Claude·Gemini, 과제할 때 뭐가 나을까 (용도별 정리)",
-  "status": ""
+  "idea": "이번 주 AI 업데이트 중 진짜 쓸 만한 것 1개 직접 써봄 (뉴스 검증 후)",
+  "status": "",
+  "format": "demo"
  },
  {
   "pillar": "work",
-  "idea": "자소서 첨삭 AI 프롬프트: 첨삭만 받고 내 문장은 지키는 법",
-  "status": ""
+  "idea": "클라이언트 화난 메일, 불 끄는 답장 프롬프트",
+  "status": "",
+  "format": "demo"
  },
  {
   "pillar": "study",
-  "idea": "영어 원서 강의자료, AI로 한국어 요약노트 만드는 법",
-  "status": ""
+  "idea": "시험 D-7 역산 계획표: 범위만 넣으면 하루 단위로",
+  "status": "",
+  "format": "demo"
  },
  {
   "pillar": "work",
-  "idea": "엑셀 데이터 붙여넣고 차트·인사이트까지 뽑는 프롬프트",
-  "status": ""
+  "idea": "슬랙 300개 안 읽은 메시지 → 내가 할 일만",
+  "status": "",
+  "format": "demo"
  },
  {
   "pillar": "study",
-  "idea": "AI로 암기카드(플래시카드) 자동 만들기",
-  "status": ""
- },
- {
-  "pillar": "work",
-  "idea": "보고서 초안 30분 컷: 목차→본문→요약 3단 프롬프트",
-  "status": ""
+  "idea": "코딩 과제 에러, AI한테 이렇게 물으면 한 번에 고쳐줌",
+  "status": "",
+  "format": "demo"
  },
  {
   "pillar": "tool",
-  "idea": "이번 주 AI 신기능 중 대학생이 바로 쓸 것 3개 (뉴스 기반)",
-  "status": ""
- },
- {
-  "pillar": "study",
-  "idea": "교수님 질문 메일, AI로 예의 바르게 쓰는 템플릿",
-  "status": ""
+  "idea": "AI는 왜 그럴듯한 거짓말을 할까? (30초 설명)",
+  "status": "",
+  "format": "explainer"
  },
  {
   "pillar": "work",
-  "idea": "인턴 첫 주 살아남는 AI 프롬프트 5개",
-  "status": ""
+  "idea": "PPT 한 장에 글 너무 많을 때: '3단어로 줄여' 프롬프트",
+  "status": "",
+  "format": "demo"
  },
  {
   "pillar": "study",
-  "idea": "시험공부 계획표 AI로 역산해서 짜기",
-  "status": ""
+  "idea": "오답노트 사진 찍어 올리면 '왜 틀렸는지' 유형별 정리",
+  "status": "",
+  "format": "demo"
  },
  {
   "pillar": "work",
-  "idea": "긴 카톡·슬랙 대화 AI로 할 일 목록 뽑기",
-  "status": ""
- },
- {
-  "pillar": "study",
-  "idea": "코딩 과제 에러, AI한테 제대로 질문하는 공식",
-  "status": ""
- },
- {
-  "pillar": "work",
-  "idea": "PPT 디자인 못해도 됨: AI로 슬라이드 구조 잡는 법",
-  "status": ""
- },
- {
-  "pillar": "study",
-  "idea": "팀플 역할분담·회의록 AI로 정리하는 법",
-  "status": ""
+  "idea": "주간보고 5분 컷: 이번 주 한 일 막 적으면 보고서 형식으로",
+  "status": "",
+  "format": "demo"
  },
  {
   "pillar": "tool",
-  "idea": "무료로 쓸 수 있는 AI 툴만 모음 (용도별)",
-  "status": ""
- },
- {
-  "pillar": "work",
-  "idea": "프롬프트 잘 쓰는 공식: 역할·맥락·형식·예시",
-  "status": ""
- },
- {
-  "pillar": "study",
-  "idea": "강의 녹음 → 요약 → 예상문제까지 한 번에",
-  "status": ""
- },
- {
-  "pillar": "work",
-  "idea": "이력서 경험 문장을 성과형으로 바꾸는 AI 프롬프트",
-  "status": ""
- },
- {
-  "pillar": "study",
-  "idea": "레포트 참고문헌, AI가 지어낸 거 거르는 체크법",
-  "status": ""
- },
- {
-  "pillar": "work",
-  "idea": "엑셀 함수 VLOOKUP 대신 AI로 해결하는 법",
-  "status": ""
- },
- {
-  "pillar": "tool",
-  "idea": "AI 답변 정확도 높이는 질문 습관 5가지",
-  "status": ""
- },
- {
-  "pillar": "study",
-  "idea": "중간고사 끝나고 오답노트 AI로 정리하기",
-  "status": ""
- },
- {
-  "pillar": "work",
-  "idea": "주간 업무 보고 5분 컷 템플릿",
-  "status": ""
+  "idea": "무료 AI 툴 vs 유료, 대학생은 이것만 쓰면 됨 (댓글 '툴' 남기면 목록)",
+  "status": "",
+  "format": "demo"
  }
 ]

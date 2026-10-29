@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face { font-family:'Pretendard'; src:url('__FONT__') format('woff2'); font-weight:100 900; }
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { width:1080px; height:1920px; overflow:hidden; }
+body { font-family:'Pretendard',sans-serif; color:#fff; letter-spacing:-0.035em; word-break:keep-all;
+  background:
+    radial-gradient(900px 700px at 50% 18%, rgba(70,90,255,.22), transparent 70%),
+    radial-gradient(700px 600px at 85% 95%, rgba(255,214,10,.08), transparent 70%),
+    #09090B; }
+#bar { position:absolute; top:0; left:0; height:10px; background:#FFD60A; width:0; }
+.hookwrap { position:absolute; top:250px; left:80px; right:80px; }
+.pov { display:inline-flex; align-items:center; gap:14px; font-size:34px; font-weight:700; color:#C9C9D1;
+  background:rgba(255,255,255,.07); border:1.5px solid rgba(255,255,255,.12); padding:12px 26px; border-radius:999px; }
+.pov i { width:14px; height:14px; border-radius:50%; background:#FF453A; display:block; box-shadow:0 0 14px #FF453A; }
+.hook { margin-top:30px; font-size:100px; line-height:1.13; font-weight:900; }
+.hook b { color:#FFD60A; }
+/* chat window */
+#win { position:absolute; left:70px; right:70px; top:650px; height:940px; border-radius:44px;
+  background:#141418; border:2px solid #26262C; overflow:hidden; box-shadow:0 40px 120px rgba(0,0,0,.6);
+  transform-origin:50% 30%; }
+.wh { height:84px; display:flex; align-items:center; padding:0 34px; gap:12px; border-bottom:2px solid #202026; }
+.wh s { width:18px; height:18px; border-radius:50%; background:#3A3A42; display:block; }
+.wh .t { flex:1; text-align:center; font-size:30px; font-weight:700; color:#8E8E99; margin-right:66px; }
+#area { position:absolute; top:86px; left:0; right:0; bottom:0; overflow:hidden; -webkit-mask-image:linear-gradient(to bottom, transparent 0, #000 70px); }
+#empty { position:absolute; left:0; right:0; top:250px; text-align:center; }
+#empty .g { width:96px; height:96px; margin:0 auto 30px; border-radius:30px; background:linear-gradient(135deg,#FFD60A,#FF9F0A); color:#111; font-weight:900; font-size:40px; display:flex; align-items:center; justify-content:center; }
+#empty .q { font-size:50px; font-weight:800; color:#E8E8EE; }
+#msgs { position:absolute; left:0; right:0; top:0; padding:34px 34px 40px; display:flex; flex-direction:column; gap:26px; }
+.ub { align-self:flex-end; max-width:86%; background:#2F6BFF; color:#fff; font-size:39px; line-height:1.45; font-weight:600;
+  padding:24px 32px; border-radius:34px 34px 10px 34px; }
+.ai { display:flex; gap:20px; align-items:flex-start; }
+.av { flex:none; width:58px; height:58px; border-radius:18px; background:linear-gradient(135deg,#FFD60A,#FF9F0A);
+  color:#111; font-weight:900; font-size:26px; display:flex; align-items:center; justify-content:center; margin-top:4px; }
+.lines { flex:1; display:flex; flex-direction:column; gap:18px; }
+.ln { font-size:42px; line-height:1.42; font-weight:600; color:#E8E8EE; }
+.ln.big { font-size:58px; font-weight:900; color:#fff; line-height:1.25; }
+.ln.big b { color:#FFD60A; }
+.ln.row { display:flex; gap:18px; align-items:flex-start; }
+.ln .pill { flex:none; min-width:96px; text-align:center; font-size:38px; font-weight:900; border-radius:14px; padding:4px 14px; margin-top:2px; }
+.ln.minus .pill { background:rgba(255,69,58,.16); color:#FF6B61; }
+.ln.plus .pill { background:rgba(48,209,88,.16); color:#4BE07A; }
+.ln.note { font-size:38px; color:#C8C8D2; background:#1D1D23; border-left:6px solid #FFD60A; padding:18px 24px; border-radius:12px; }
+.ln b { color:#FFD60A; font-weight:800; }
+.dots { display:flex; gap:12px; padding:22px 0 0 4px; }
+.dots span { width:16px; height:16px; border-radius:50%; background:#6E6E78; display:block; }
+/* input */
+#inp { position:absolute; left:26px; right:26px; bottom:26px; min-height:96px; background:#1E1E24; border:2px solid #2C2C34;
+  border-radius:30px; padding:24px 110px 24px 32px; font-size:36px; line-height:1.42; color:#fff; font-weight:500; }
+#inp.ph { color:#5E5E68; }
+#inp .send { position:absolute; right:18px; bottom:16px; width:64px; height:64px; border-radius:50%; background:#3A3A42; }
+#inp.on .send { background:#fff; }
+#inp .send:after { content:''; position:absolute; left:22px; top:18px; border-left:12px solid transparent; border-right:12px solid transparent; border-bottom:16px solid #141418; }
+.caret { display:inline-block; width:4px; height:40px; background:#FFD60A; vertical-align:-7px; margin-left:3px; }
+/* payoff */
+#pay { position:absolute; left:70px; right:70px; top:760px; padding:70px 60px 64px; border-radius:44px; background:#FFD60A; color:#0B0B0D;
+  opacity:0; transform:translateY(40px) scale(.96); }
+#pay .k { font-size:34px; font-weight:800; opacity:.6; }
+#pay .big { font-size:96px; line-height:1.14; font-weight:900; margin-top:18px; }
+#pay .sub { font-size:40px; line-height:1.45; font-weight:700; margin-top:30px; }
+#pay .cta { margin-top:44px; display:inline-flex; align-items:center; gap:16px; background:#0B0B0D; color:#fff;
+  font-size:38px; font-weight:800; padding:22px 34px; border-radius:999px; }
+.handle { position:absolute; left:80px; top:1612px; font-size:30px; font-weight:700; color:#6C6C78; }
+.ex { position:absolute; right:80px; top:1612px; font-size:26px; font-weight:600; color:#55555F; }
+</style></head>
+<body>
+<div id="bar"></div>
+<div class="hookwrap">
+  <div class="pov"><i></i><span id="pov"></span></div>
+  <div class="hook" id="hook"></div>
+</div>
+<div id="win">
+  <div class="wh"><s></s><s></s><s></s><div class="t" id="apptitle"></div></div>
+  <div id="area"><div id="empty"><div class="g">AI</div><div class="q">무엇을 도와드릴까요?</div></div><div id="msgs"></div><div id="inp" class="ph"><span id="it"></span><div class="send"></div></div></div>
+</div>
+<div id="pay"><div class="k" id="pk"></div><div class="big" id="pbig"></div><div class="sub" id="psub"></div><div class="cta" id="pcta"></div></div>
+<div class="handle" id="handle"></div>
+<div class="ex" id="ex"></div>
+<script>
+const D = __DATA__;
+const S = D.schedule;
+const md = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>');
+document.getElementById('pov').textContent = D.pov;
+document.getElementById('hook').innerHTML = md(D.hook);
+document.getElementById('apptitle').textContent = D.app || 'AI 채팅';
+document.getElementById('handle').textContent = D.handle;
+document.getElementById('ex').textContent = D.footnote || '';
+document.getElementById('pk').textContent = D.payoff.kicker || '';
+document.getElementById('pbig').innerHTML = md(D.payoff.big);
+document.getElementById('psub').innerHTML = md(D.payoff.sub);
+document.getElementById('pcta').innerHTML = md(D.payoff.cta) + ' &rarr;';
+
+const msgs = document.getElementById('msgs');
+const ub = document.createElement('div'); ub.className='ub'; ub.innerHTML = md(D.prompt); msgs.appendChild(ub);
+const ai = document.createElement('div'); ai.className='ai'; ai.innerHTML='<div class="av">AI</div><div class="lines"></div>'; msgs.appendChild(ai);
+const lines = ai.querySelector('.lines');
+const dots = document.createElement('div'); dots.className='dots'; dots.innerHTML='<span></span><span></span><span></span>'; lines.appendChild(dots);
+const lnEls = D.response.map(r => {
+  const e = document.createElement('div'); e.className = 'ln ' + (r.style||'');
+  if (r.style==='minus' || r.style==='plus') e.classList.add('row'), e.innerHTML = '<span class="pill">'+md(r.tag)+'</span><span>'+md(r.text)+'</span>';
+  else e.innerHTML = md(r.text);
+  lines.appendChild(e); return e;
+});
+const area = document.getElementById('area'), inp = document.getElementById('inp'), it = document.getElementById('it');
+const ease = x => 1 - Math.pow(1 - Math.min(Math.max(x,0),1), 3);
+const plain = D.prompt.replace(/\*\*/g,'');
+
+window.render = function(t) {
+  document.getElementById('bar').style.width = (Math.min(t / S.end, 1) * 1080) + 'px';
+  // typing
+  const typing = t >= S.type_start && t < S.send;
+  if (t < S.type_start || t >= S.send) {
+    inp.className = 'ph'; it.innerHTML = '메시지를 입력하세요';
+  } else {
+    const n = Math.floor(plain.length * Math.min((t - S.type_start) / (S.type_end - S.type_start), 1));
+    inp.className = 'on'; it.innerHTML = md(plain.slice(0, n)) + '<span class="caret" style="opacity:' + ((Math.floor(t*3)%2 && n>=plain.length)?0:1) + '"></span>';
+  }
+  inp.style.display = '';
+  const ep = 1 - ease((t - S.send) / 0.25);
+  document.getElementById('empty').style.opacity = t < S.send ? 1 : ep;
+  // bubble
+  const sentP = ease((t - S.send) / 0.3);
+  ub.style.display = t >= S.send ? '' : 'none';
+  ub.style.opacity = sentP; ub.style.transform = 'translateY(' + (30*(1-sentP)) + 'px)';
+  ai.style.display = t >= S.send + 0.15 ? '' : 'none';
+  dots.style.display = (t >= S.send + 0.15 && t < S.lines[0]) ? '' : 'none';
+  [...dots.children].forEach((d,i) => d.style.opacity = 0.35 + 0.65*Math.max(0, Math.sin((t*7) - i*0.9)));
+  lnEls.forEach((e,i) => {
+    const p = ease((t - S.lines[i]) / 0.28);
+    e.style.display = t >= S.lines[i] ? '' : 'none';
+    e.style.opacity = p; e.style.transform = 'translateY(' + (24*(1-p)) + 'px)';
+  });
+  // auto-scroll: keep newest content visible above the input box
+  const avail = area.clientHeight - (t >= S.send ? 40 : inp.offsetHeight + 60);
+  const over = msgs.scrollHeight - avail;
+  msgs.style.transform = 'translateY(' + (over > 0 ? -over : 0) + 'px)';
+  if (t >= S.send) inp.style.display = 'none';
+  // payoff
+  const pp = ease((t - S.payoff) / 0.4);
+  const win = document.getElementById('win'), pay = document.getElementById('pay');
+  win.style.opacity = 1 - 0.9*pp; win.style.transform = 'scale(' + (1 - 0.05*pp) + ')';
+  pay.style.opacity = pp; pay.style.transform = 'translateY(' + (40*(1-pp)) + 'px) scale(' + (0.96 + 0.04*pp) + ')';
+};
+window.render(0);
+</script>
+</body></html>
