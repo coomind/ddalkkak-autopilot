@@ -49,6 +49,7 @@ li .ck { flex:none; width:46px; height:46px; border-radius:12px; background:%(ac
 .bignum { position:absolute; right:60px; top:%(bn_top)dpx; font-size:300px; font-weight:900; line-height:1; color:transparent; -webkit-text-stroke:4px %(accent)s; opacity:.28; }
 .cta-box { border:4px solid %(ink)s; border-radius:32px; padding:40px 44px; display:flex; flex-direction:column; gap:20px; }
 .cta-row { font-size:%(p)dpx; font-weight:700; }
+.rv.off { visibility:hidden; }
 .sub { font-size:%(sub)dpx; font-weight:600; color:%(ink2)s; line-height:1.4; }
 """
 
@@ -58,9 +59,9 @@ def slide_html(s, idx, total, w, h, reel=False):
     scale = dict(
         w=w, h=h, font=FONT, bg=c["bg"], ink=c["ink"], ink2=c["ink2"], muted=c["muted"],
         accent=c["accent"], mark=c["mark"], pad_x=84,
-        pad_top=260 if reel else 80, bn_top=300 if reel else 110, pad_bottom=420 if reel else 80,
+        pad_top=300 if reel else 80, bn_top=340 if reel else 110, pad_bottom=330 if reel else 80,
         gap=48 if reel else 40, h1=128 if reel else 112, h2=100 if reel else 88,
-        p=54 if reel else 46, prompt=48 if reel else 42, sub=56 if reel else 50,
+        p=58 if reel else 46, prompt=48 if reel else 42, sub=56 if reel else 50,
     )
     css = CSS % scale
     handle = html.escape(CONFIG["handle"])
@@ -70,24 +71,26 @@ def slide_html(s, idx, total, w, h, reel=False):
     inner = ""
     if t == "cover":
         inner = f"""
-        {f'<div class="kicker">{md(s.get("kicker"))}</div>' if s.get("kicker") else ''}
-        <h1>{md(s["title"])}</h1>
-        {f'<div class="sub">{md(s.get("sub"))}</div>' if s.get("sub") else ''}"""
+        {f'<div class="kicker rv" data-s="1">{md(s.get("kicker"))}</div>' if s.get("kicker") else ''}
+        <h1 class="rv" data-s="1">{md(s["title"])}</h1>
+        {f'<div class="sub rv" data-s="2">{md(s.get("sub"))}</div>' if s.get("sub") else ''}"""
     elif t in ("step", "prompt"):
-        num = f'<div class="num">STEP {s["num"]}</div>' if s.get("num") else ""
-        body = f'<p>{md(s.get("body"))}</p>' if s.get("body") else ""
-        prompt = (f'<div class="prompt"><span class="label">복붙 프롬프트</span>{md(s["prompt"])}</div>'
+        num = f'<div class="num rv" data-s="1">STEP {s["num"]}</div>' if s.get("num") else ""
+        body = f'<p class="rv" data-s="2">{md(s.get("body"))}</p>' if s.get("body") else ""
+        ps = 3 if s.get("body") else 2
+        prompt = (f'<div class="prompt rv" data-s="{ps}"><span class="label">복붙 프롬프트</span>{md(s["prompt"])}</div>'
                   if s.get("prompt") else "")
         big = f'<div class="bignum">{int(s["num"]):02d}</div>' if s.get("num") else ""
-        inner = f"{big}{num}<h2>{md(s['title'])}</h2>{body}{prompt}"
+        inner = f"{big}{num}<h2 class=\"rv\" data-s=\"1\">{md(s['title'])}</h2>{body}{prompt}"
     elif t == "checklist":
-        items = "".join(f'<li><span class="ck">✓</span><span>{md(i)}</span></li>' for i in s["items"])
-        inner = f"<h2>{md(s['title'])}</h2><ul>{items}</ul>"
+        items = "".join(f'<li class="rv" data-s="{k+2}"><span class="ck">✓</span><span>{md(i)}</span></li>'
+                        for k, i in enumerate(s["items"]))
+        inner = f"<h2 class=\"rv\" data-s=\"1\">{md(s['title'])}</h2><ul>{items}</ul>"
     elif t == "cta":
         rows = "".join(f'<div class="cta-row">{md(r)}</div>' for r in s.get("rows", []))
-        inner = f"""<h2>{md(s['title'])}</h2>
-        {f'<div class="sub">{md(s.get("sub"))}</div>' if s.get("sub") else ''}
-        {f'<div class="cta-box">{rows}</div>' if rows else ''}"""
+        inner = f"""<h2 class="rv" data-s="1">{md(s['title'])}</h2>
+        {f'<div class="sub rv" data-s="2">{md(s.get("sub"))}</div>' if s.get("sub") else ''}
+        {f'<div class="cta-box rv" data-s="3">{rows}</div>' if rows else ''}"""
     else:
         raise ValueError(f"unknown slide type {t}")
     swipe = '<span class="swipe">넘겨서 보기 →</span>' if (t == "cover" and not reel) else ""
@@ -108,12 +111,23 @@ def render_pngs(spec, outdir: Path, w, h, reel):
         b = p.chromium.launch()
         page = b.new_page(viewport={"width": w, "height": h})
         for i, s in enumerate(slides):
-            f = outdir / f"{i+1:02d}.png"
             page.set_content(slide_html(s, i, len(slides), w, h, reel=reel), wait_until="load")
             page.evaluate("document.fonts.ready")
             page.wait_for_timeout(150)
-            page.screenshot(path=str(f))
-            paths.append(f)
+            if not reel:
+                f = outdir / f"{i+1:02d}.png"
+                page.screenshot(path=str(f))
+                paths.append(f)
+                continue
+            # reel: kinetic reveal -> one frame per reveal step (elements pop in one after another)
+            nmax = page.evaluate("Math.max(1,...[...document.querySelectorAll('.rv')].map(e=>+e.dataset.s))")
+            states = []
+            for k in range(1, nmax + 1):
+                page.evaluate(f"document.querySelectorAll('.rv').forEach(e=>e.classList.toggle('off', +e.dataset.s>{k}))")
+                f = outdir / f"{i+1:02d}_{k}.png"
+                page.screenshot(path=str(f))
+                states.append(f)
+            paths.append(states)
         b.close()
     return paths
 
@@ -139,7 +153,7 @@ def render_reel(spec, outdir: Path, voice=True):
     tmp = Path(tempfile.mkdtemp())
     segs = []
     fps = 30
-    for i, (s, img) in enumerate(zip(spec["slides"], frames)):
+    for i, (s, states) in enumerate(zip(spec["slides"], frames)):
         line = s.get("voice")
         aud = None
         if voice and line:
@@ -150,11 +164,21 @@ def render_reel(spec, outdir: Path, voice=True):
             dur = s.get("seconds", 2.5)
         if i == 0:
             dur = max(dur, 1.8)  # hook frame visible from 0s
-        n = int(dur * fps)
+        # split slide time across reveal states: first state 35%, rest equal (each >= 0.5s)
+        ns = len(states)
+        if ns == 1:
+            parts = [dur]
+        else:
+            first = max(0.6, dur * 0.35)
+            rest = max(0.5, (dur - first) / (ns - 1))
+            parts = [first] + [rest] * (ns - 1)
+        lst_s = tmp / f"st{i}.txt"
+        lst_s.write_text("".join(f"file '{st}'\nduration {d:.3f}\n" for st, d in zip(states, parts))
+                         + f"file '{states[-1]}'\n")
+        dur = sum(parts)
         seg = tmp / f"s{i}.mp4"
-        vf = (f"scale=1188:2112,zoompan=z='min(1+0.0009*on,1.06)':x='iw/2-(iw/zoom/2)':"
-              f"y='ih/2-(ih/zoom/2)':d={n}:s=1080x1920:fps={fps},format=yuv420p")
-        cmd = ["ffmpeg", "-y", "-loglevel", "error", "-loop", "1", "-i", str(img)]
+        vf = f"fps={fps},scale=1080:1920,format=yuv420p"
+        cmd = ["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", str(lst_s)]
         if aud:
             cmd += ["-i", str(aud), "-filter_complex", f"[0:v]{vf}[v];[1:a]apad[a]",
                     "-map", "[v]", "-map", "[a]"]
@@ -179,7 +203,7 @@ def render_reel(spec, outdir: Path, voice=True):
                     "-filter_complex", f"[0:v][1:v]overlay=x='-w+w*t/{total:.3f}':y=0:shortest=1[v]",
                     "-map", "[v]", "-map", "0:a", "-c:v", "libx264", "-preset", "veryfast", "-crf", "21",
                     "-c:a", "copy", "-movflags", "+faststart", str(out)], check=True)
-    shutil.copy(frames[0], outdir / "cover.png")
+    shutil.copy(frames[0][-1], outdir / "cover.png")
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(outdir / "cover.png"),
                     "-q:v", "3", str(outdir / "cover.jpg")], check=True)
     shutil.rmtree(tmp)
