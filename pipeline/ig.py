@@ -11,6 +11,7 @@ Fallback: secrets/ig_token.enc decrypted with env IG_PASSPHRASE.
   python3 pipeline/ig.py recent [n]               # recent media + core metrics
   python3 pipeline/ig.py comments <media_id>
   python3 pipeline/ig.py reply_private <comment_id> <message>
+  python3 pipeline/ig.py autodm [--dry]              # 댓글 키워드 → 자료 링크 DM (최근 7일 게시물)
 Media URLs: files must be pushed to the public repo first; base = config.media_base with {sha}.
 """
 import json, os, sys, time, subprocess, urllib.parse, urllib.request
@@ -164,6 +165,76 @@ def insights(media_id, media_type="CAROUSEL_ALBUM"):
     return out
 
 
+def _norm(t):
+    return "".join((t or "").split()).lower().strip("'\"“”‘’!.~")
+
+
+def autodm(dry=False, max_send=200):
+    """Comment-keyword giveaway: anyone who comments the post's keyword gets the resource link by DM
+    (Instagram private reply, allowed once per comment within 7 days). Needs instagram_manage_messages
+    + instagram_manage_comments on the token. Falls back to a public reply pointing at the bio link."""
+    import datetime as dt
+    done_f = ROOT / "state" / "dm_done.json"
+    done = set(json.loads(done_f.read_text())) if done_f.exists() else set()
+    sha = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+    base = CONFIG["media_base"].format(sha=sha)
+    now = dt.datetime.now(dt.timezone.utc)
+    sent = fallback = 0
+    report = []
+    for line in (ROOT / "state" / "log.jsonl").read_text(encoding="utf-8").splitlines():
+        e = json.loads(line)
+        if e.get("status") != "published" or not e.get("media_id"):
+            continue
+        spec_f = ROOT / "posts" / e["id"] / "spec.json"
+        if not spec_f.exists():
+            continue
+        spec = json.loads(spec_f.read_text(encoding="utf-8"))
+        kw = (spec.get("payoff") or {}).get("keyword") or spec.get("keyword")
+        gift = ROOT / "posts" / e["id"] / "out" / "giveaway.pdf"
+        if not kw or not gift.exists():
+            continue
+        link = f"{base}posts/{e['id']}/out/giveaway.pdf"
+        after = None
+        while True:
+            params = {"fields": "id,text,username,timestamp", "limit": 50}
+            if after:
+                params["after"] = after
+            r = req("GET", f"{e['media_id']}/comments", params)
+            for c in r.get("data", []):
+                if c["id"] in done or _norm(kw) not in _norm(c.get("text")):
+                    continue
+                ts = dt.datetime.strptime(c["timestamp"][:19], "%Y-%m-%dT%H:%M:%S").replace(tzinfo=dt.timezone.utc)
+                if (now - ts).days >= 7:
+                    done.add(c["id"]); continue
+                msg = (spec.get("dm_text") or "댓글 남겨주셔서 감사해요! 약속한 자료예요 👇\n{link}\n\n도움 됐으면 팔로우하고 다음 꿀팁도 받아가세요 🙌").format(link=link)
+                if dry:
+                    report.append(f"[dry] @{c.get('username')} <- {link}")
+                    continue
+                try:
+                    req("POST", f"{load_secret()['page_id']}/messages",
+                        data=json.dumps({"recipient": {"comment_id": c["id"]}, "message": {"text": msg}}).encode(),
+                        headers={"Content-Type": "application/json"})
+                    req("POST", f"{c['id']}/replies", {"message": "DM 보내드렸어요! 📩 메시지함(요청함) 확인해주세요"})
+                    sent += 1
+                except SystemExit as err:
+                    try:
+                        req("POST", f"{c['id']}/replies", {"message": "프로필 링크 자료실에 올려뒀어요! 📎"})
+                    except SystemExit:
+                        pass
+                    fallback += 1
+                    report.append(f"DM 실패 → 공개 답글: {str(err)[:120]}")
+                done.add(c["id"])
+                time.sleep(1.2)
+                if sent + fallback >= max_send:
+                    break
+            after = (r.get("paging") or {}).get("cursors", {}).get("after") if (r.get("paging") or {}).get("next") else None
+            if not after or sent + fallback >= max_send:
+                break
+    if not dry:
+        done_f.write_text(json.dumps(sorted(done)))
+    return {"sent": sent, "fallback_public_reply": fallback, "notes": report[:20]}
+
+
 def main():
     a = sys.argv[1:]
     if not a:
@@ -201,6 +272,8 @@ def main():
         print(req("POST", f"{load_secret()['page_id']}/messages", data=json.dumps({"recipient": {"comment_id": a[1]},
                                                                 "message": {"text": a[2]}}).encode(),
                   headers={"Content-Type": "application/json"}))
+    elif cmd == "autodm":
+        print(json.dumps(autodm(dry="--dry" in a), ensure_ascii=False, indent=1))
     else:
         sys.exit(__doc__)
 

@@ -12,8 +12,10 @@
     "panel_line": "#2A2A31"
   },
   "voice": {
-    "engine": "none",
-    "note": "TTS 폐기(품질 낮음). 릴스는 pipeline/audio.py 로파이 비트+UI 효과음."
+    "engine": "supertonic",
+    "voice": "M1",
+    "speed": 1.15,
+    "note": "supertonic(PyPI)+HF 모델. gTTS 폐기."
   },
   "metricool": {
     "blogId": null,

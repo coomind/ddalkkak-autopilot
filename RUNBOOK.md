@@ -53,29 +53,32 @@
 
 **하지 말 것**: 같은 영상 재업로드, 남의 영상·캡처 사용, 지어낸 수치·후기, 해시태그 도배, 낚시성 훅인데 내용 부실(이탈률↑로 오히려 손해).
 
-## 1-2. 릴스 포맷 = "화면 데모형" (2026-10-29 개편, 사용자 피드백 반영)
-사용자 피드백: 예전 릴스(베이지 슬라이드+TTS)는 "디자인 별로, 다 아는 내용, TTS 별로" → **폐기**.
-잘 되는 국내 AI 계정 조사 결과(@hpd.ai 55만·8.7만, @zun_it_ 12.6만, @ai.asap.kr 59만):
-- 잘 되는 릴스는 **설명하지 않고 보여준다**: 실제 화면(채팅·터미널·결과물) + "POV: ~" 한 줄 + 음악. 나레이션 없음.
-- 다크 배경, 크고 굵은 흰 글씨, 키워드 하나만 노랑/파랑 강조.
-- 내용은 "AI 쓰는 법"이 아니라 **구체적 상황 + 눈에 보이는 결과**(점수가 깎인다, 메일이 완성된다, 숨은 의도가 해석된다).
-- 무료 자료 나눔(댓글/프로필 링크)과 "AI는 왜 ~할까?" 같은 호기심 질문도 잘 됨.
+## 1-2. 검증된 템플릿 (2026-10-29 상위 계정 조사 → 이걸 그대로 따른다)
+조사 계정과 수치(조회수 / 좋아요 / 댓글):
+- @use.ai.likejimin (8.6만, 게시물 10여 개로 3달 만에): "GPT는 우리의 모든 비밀을 알고 있습니다" 114.5만 / 8,378 / 6,875 · "사진 한 장 → 영상" 80.6만 / 8,884 / 9,856 · "블로그 자동화 그냥 공개" 42.9만 / 5,046 / **25K**
+- @biggie_ai (11.9만): "햄스터 AI 영상" 95.7만 / 1만 / 9,086 · 평소 1~4만, 히트 7.9만~12.5만. 협찬(#광고 Newtake) 다수
+- @aiollcut (2.2만, AI 페르소나): 직접 만든 캡컷 폰트 배포 16.5만 / 2,426 / **15K** · 협찬(#광고 Adobe Firefly)
+- @ai.injae (8,574): "AI 냄새 나는 PPT, 원인은 지시에 있다" 21만 / 992 / 3,276
+- 실패 사례: @ai_men000(자동 운영, 440팔로워, 조회 200~500, 좋아요 0) — 훅 없음·개발자 뉴스·자료 나눔 없음. @carryqueen_(842) — AI·재테크 주제 섞임.
 
-그래서 릴스는 `pipeline/reel_demo.py` 한 가지 포맷으로 만든다:
-- 상단: POV 칩("POV: 레포트 제출 10분 전") + 훅 2줄(숫자 1개는 `**노랑**`).
-- 중앙: AI 채팅 창 — 프롬프트가 타이핑되고, 전송 후 답변이 한 줄씩 뜸(1초 간격 화면 변화 = 리텐션).
-- 마지막: 노란 결과 카드(한 줄 요약 + "○○인 친구한테 보내기").
-- 소리: 나레이션 없음. `pipeline/audio.py`가 저작권 없는 로파이 비트 + 타자/전송/팝 효과음 합성. music_seed(0~2)로 코드 진행 바꿈.
-- 길이 14~20초(자동 계산). 짧아서 반복 시청(루프)이 잘 됨.
+**공통 공식 (상위 계정 전부 해당)**
+1. **댓글 키워드 → DM 자료 나눔**: 캡션·영상 끝에 "댓글에 'OO' 남기시면 프롬프트/가이드 보내드릴게요". 터진 게시물은 **댓글이 좋아요보다 많다**(3천~2.5만). 댓글 수가 곧 확산 신호. → 우리는 매 게시물 `payoff.keyword` + `giveaway`(PDF) + `ig.py autodm`.
+2. **화면 구성**: 상단 고정 제목(흰 글씨 + 노란 키워드 1개) / 가운데 실제 AI 화면(프롬프트 입력창에 빨간 박스) / 하단 굵은 자막(말 속도에 맞춰 3~6단어씩). → `reel_demo.py`가 이 구성.
+3. **나레이션 있음**(사람 목소리 + 자막). gTTS는 폐기, `supertonic`(Supertone 신경망 TTS, 남성 M1, 1.15배속)으로 말하고 자막을 동기화.
+4. **주제 = 결과가 세게 보이는 것**: ①돈·조회수(블로그 자동화, 해외 유튜브 AI 영상) ②나에 대한 비밀/감정(GPT가 아는 내 성격) ③새 기능으로 "이게 된다고?"(사진 한 장 → 영상) ④직접 만든 자료 배포(폰트, 템플릿, 프롬프트 팩) ⑤흔한 문제의 진짜 원인("AI 냄새 나는 PPT, 원인은 지시"). 사용법 설명형은 안 터짐.
+5. **캡션 구조**: 훅 한 줄 → "결론부터 말하면 ~" → 1·2·3 단계 → "저장해두시면 바로 따라 하실 수 있어요" → "댓글에 'OO' 남기시면 ~ 보내드릴게요" → 공유 한 줄.
+6. **협찬은 2만 팔로워 전후부터 들어옴**(AI 툴사: Newtake, Adobe Firefly, Higgsfield). 협찬 콘텐츠는 #광고 표기 + 평소 포맷 그대로.
+7. 주제 일관성: AI 꿀팁 하나만. 재테크·잡담 섞지 않음.
 
-**콘텐츠 규칙 (데모형)**
-- "다 아는 내용" 금지: "NotebookLM 쓰세요", "ChatGPT로 요약하세요" 같은 기본기 X. **특정 상황(POV) + 비틀린 지시**(감점만 해줘 / 우겨봐 / 숨은 의도 해석해줘 / 압박면접관 해줘)로 결과가 새롭게 보이게.
-- 답변(response)은 Claude가 그 프롬프트에 실제로 낼 법한 내용을 직접 써서 넣는다. 수치가 들어가면 footnote에 "예시 ○○로 돌려본 결과"처럼 예시임을 밝힌다. 특정 회사 앱 화면 흉내 금지(창 제목은 "AI 채팅").
-- 답변 줄 5~6개: 첫 줄 `big`(결과 한 방), 이어서 `minus`/`plus`(태그+한 줄), 마지막 `note`(복붙 포인트). 한 줄 28자 이내 권장.
-- 프롬프트 전문은 캡션에 복붙용으로 넣는다(저장·공유 이유).
+**우리 계정 적용 규칙 (데모형 v2)**
+- 대상은 대학생·직장인 그대로. 주제는 위 ①~⑤ 중 하나로 비튼다(예: "과제 자동화 그냥 공개", "AI가 본 내 자소서의 진짜 문제", "교수님 감점 프롬프트 배포").
+- spec에 `narration`(cue: hook/type/answer/note/cta, say=읽을 문장(숫자는 한글로), sub=자막(`/`로 끊기, `**강조**`)) 5개 내외, 전체 18~30초.
+- `payoff.keyword`(한 단어, 예: "감점") + `payoff.keyword_gift` + `giveaway`(PDF 내용: 프롬프트 2~3종 + 체크리스트 + 주의) + `dm_text`(`{link}` 포함) 필수.
+- 답변(response)은 Claude가 그 프롬프트에 실제로 낼 법한 내용. 수치는 footnote에 "예시 ○○로 돌려본 결과". 창 제목은 "AI 채팅"(특정 회사 앱 흉내 금지).
+- 견본: `posts/2026-10-31-prof-deduct/spec.json`
 
 ## 2. 매일 할 일 (예약 작업 1회 실행 = 게시물 1개)
-0. 환경: 비공개 저장소 `coomind/ddalkkak-secrets`를 add_repo 후 clone → `export IG_SECRET_FILE=/home/claude/ddalkkak-secrets/ig_token.json` (내용: {"user_token": "..."} — 페이지 토큰은 실행 시 자동 발급, 사용자 토큰 만료 2026-12-28 전 재발급 필요) / `export SSL_CERT_FILE=/root/.ccr/ca-bundle.crt`
+0. 환경: `pip install supertonic onnxruntime huggingface-hub --break-system-packages -q` / 비공개 저장소 `coomind/ddalkkak-secrets`를 add_repo 후 clone → `export IG_SECRET_FILE=/home/claude/ddalkkak-secrets/ig_token.json` (내용: {"user_token": "..."} — 페이지 토큰은 실행 시 자동 발급, 사용자 토큰 만료 2026-12-28 전 재발급 필요) / `export SSL_CERT_FILE=/root/.ccr/ca-bundle.crt`
 1. `git pull` 후 `state/log.jsonl`, `state/backlog.json`, `LEARNINGS.md` 읽기.
 2. **어제 이전 게시물 성과 수집**: `python3 pipeline/ig.py recent 10` → `state/metrics.jsonl`에 append.
 3. **오늘 포맷 결정** (주간 리듬, 성과 학습으로 조정 가능):
@@ -90,11 +93,13 @@
    - 마지막: **"○○인 친구한테 보내기"(공유 유도)**. 특정 상황의 사람을 지목.
    - caption: 첫 줄 훅+키워드 → 2~3줄 맥락 → 복붙 프롬프트 → 공유 CTA. hashtags 3~5개.
 7. **렌더**
-   - 릴스: `python3 pipeline/reel_demo.py posts/<id>/spec.json` (약 40초 소요) → out/reel/reel.mp4, cover.jpg, qa_*.jpg
+   - 릴스: `python3 pipeline/reel_demo.py posts/<id>/spec.json` (약 1분, 첫 실행 때 TTS 모델 자동 다운로드) → out/reel/reel.mp4, cover.jpg, qa_*.jpg
+   - 자료: `python3 pipeline/giveaway.py posts/<id>/spec.json` → out/giveaway.pdf (댓글 DM으로 나갈 파일)
    - 캐러셀: `python3 pipeline/render.py posts/<id>/spec.json --no-reel`
 8. **눈으로 검수**: 릴스는 cover.jpg와 qa_*.jpg 4장, 캐러셀은 전 장을 Read로 확인. 글자 넘침·잘림·오타·사실 오류·답변 창 밖으로 밀림이 있으면 문장을 줄이고 재렌더.
 9. `git add posts/<id> && git commit && git push` (미디어가 공개 URL이 되도록). 푸시 후 30초 대기(jsDelivr 반영).
 10. **게시**: `python3 pipeline/ig.py publish posts/<id> reel|carousel` → 반환 media_id/permalink와 hook_type·pillar·format·길이(초)를 `state/log.jsonl`에 append 후 다시 push.
+10-1. **댓글 DM 처리 (매 실행마다, 게시 전후 상관없이)**: `python3 pipeline/ig.py autodm` → 최근 7일 게시물에서 키워드 댓글 단 사람에게 자료 링크 DM + "DM 보냈어요" 답글. 결과(sent/fallback)를 보고에 한 줄. DM 권한 오류면 공개 답글로 대체되고, 사용자에게 권한(instagram_manage_messages) 추가 요청.
 11. 실패 시: 에러 원인 기록, 1회 재시도. 그래도 실패하면 게시하지 말고 log에 failed 기록 후 사용자에게 알림.
 
 ## 3. 매주 월요일 추가 작업 (주간 리뷰)

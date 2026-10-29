@@ -153,14 +153,22 @@ def sfx(kind, rng):
 SFX_GAIN = {"key": 0.22, "send": 0.25, "pop": 0.28, "whoosh": 0.35, "ding": 0.16}
 
 
-def make_track(duration, events, seed=0):
+def make_track(duration, events, seed=0, voice=None):
     rng = np.random.default_rng(seed + 99)
     m = beat(duration, seed)
     fx = np.zeros_like(m)
     for t, kind in events:
-        add(fx, t, sfx(kind, rng), SFX_GAIN[kind])
+        add(fx, t, sfx(kind, rng), SFX_GAIN[kind] * (0.6 if voice is not None else 1.0))
     m = m / (np.max(np.abs(m)) + 1e-9) * 0.42
-    mix = m + fx
+    if voice is not None:
+        v = np.zeros_like(m); n = min(len(v), len(voice)); v[:n] = voice[:n]
+        # duck the music under speech (smoothed envelope)
+        envv = lowpass(np.abs(v), 6.0)
+        envv = envv / (envv.max() + 1e-9)
+        m = m * (1 - 0.65 * np.clip(envv * 4, 0, 1))
+        mix = 0.85 * v + 0.55 * m + fx
+    else:
+        mix = m + fx
     # gentle fade out over the last 0.6s (fade-in deliberately absent: the hook must hit at frame 0)
     fo = int(0.6 * SR)
     mix[-fo:] *= np.linspace(1, 0, fo)
