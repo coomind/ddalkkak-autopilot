@@ -9,7 +9,15 @@
     "accent": "#3D5AFE",
     "mark": "#D7FF3A"
   },
-  "voice": { "engine": "gtts", "tempo": 1.3 },
-  "metricool": { "blogId": null, "timezone": "Asia/Seoul" },
-  "media_base": "https://cdn.jsdelivr.net/gh/coomind/ddalkkak-autopilot@{sha}/"
+  "voice": {
+    "engine": "gtts",
+    "tempo": 1.3
+  },
+  "metricool": {
+    "blogId": null,
+    "timezone": "Asia/Seoul"
+  },
+  "media_base": "https://cdn.jsdelivr.net/gh/coomind/ddalkkak-autopilot@{sha}/",
+  "ig_api_host": "https://graph.facebook.com",
+  "ig_api_version": "v23.0"
 }

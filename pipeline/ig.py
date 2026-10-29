@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Instagram API (Instagram Login) client for @ai.ddalkkak.
+Instagram Graph API (Facebook Login, page token) client for @ai.ddalkkak.
 
 Token is kept encrypted in secrets/ig_token.enc (AES-256, passphrase in env IG_PASSPHRASE).
   python3 pipeline/ig.py me                       # sanity check
@@ -17,7 +17,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 CONFIG = json.loads((ROOT / "config.json").read_text(encoding="utf-8"))
-API = "https://graph.instagram.com/" + CONFIG.get("ig_api_version", "v23.0")
+API = CONFIG.get("ig_api_host", "https://graph.facebook.com") + "/" + CONFIG.get("ig_api_version", "v23.0")
 ENC = ROOT / "secrets" / "ig_token.enc"
 
 
@@ -153,16 +153,14 @@ def main():
         sys.exit(__doc__)
     cmd = a[0]
     if cmd == "me":
-        print(json.dumps(req("GET", "me", {"fields": "user_id,username,account_type,followers_count,media_count"}),
+        print(json.dumps(req("GET", uid(), {"fields": "id,username,followers_count,media_count"}),
                          ensure_ascii=False, indent=1))
     elif cmd == "refresh":
+        # Page token derived from a long-lived user token does not expire; just verify it still works.
         sec = load_secret()
-        r = req("GET", "", {"grant_type": "ig_refresh_token", "access_token": sec["token"]},
-                url="https://graph.instagram.com/refresh_access_token")
-        sec["token"] = r["access_token"]
-        sec["expires_at"] = int(time.time()) + int(r.get("expires_in", 5184000))
-        save_secret(sec)
-        print("refreshed; expires in days:", round(int(r.get("expires_in", 0)) / 86400))
+        r = req("GET", "debug_token", {"input_token": sec["token"]})
+        d = r.get("data", {})
+        print("valid:", d.get("is_valid"), "expires_at:", d.get("expires_at"), "scopes:", len(d.get("scopes", [])))
     elif cmd == "publish":
         post_dir = (ROOT / a[1]).resolve() if not Path(a[1]).is_absolute() else Path(a[1])
         sha = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "HEAD"], capture_output=True,
@@ -183,7 +181,7 @@ def main():
         print(json.dumps(req("GET", f"{a[1]}/comments", {"fields": "id,text,username,timestamp"}),
                          ensure_ascii=False, indent=1))
     elif cmd == "reply_private":
-        print(req("POST", f"{uid()}/messages", data=json.dumps({"recipient": {"comment_id": a[1]},
+        print(req("POST", f"{load_secret()['page_id']}/messages", data=json.dumps({"recipient": {"comment_id": a[1]},
                                                                 "message": {"text": a[2]}}).encode(),
                   headers={"Content-Type": "application/json"}))
     else:

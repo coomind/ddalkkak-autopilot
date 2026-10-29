@@ -20,6 +20,7 @@
 - 캡션 첫 줄과 화면 텍스트에 **검색 키워드**(예: "시험공부 AI", "엑셀 AI") 포함.
 
 ## 2. 매일 할 일 (예약 작업 1회 실행 = 게시물 1개)
+0. 환경: `export IG_PASSPHRASE=<예약 작업 프롬프트에 있는 값>` / `export SSL_CERT_FILE=/root/.ccr/ca-bundle.crt` / `pip install gTTS --break-system-packages -q`
 1. `git pull` 후 `state/log.jsonl`, `state/backlog.json`, `LEARNINGS.md` 읽기.
 2. **어제 이전 게시물 성과 수집**: `python3 pipeline/ig.py recent 10` → `state/metrics.jsonl`에 append.
 3. **오늘 포맷 결정** (주간 리듬, 성과 학습으로 조정 가능):
@@ -44,7 +45,7 @@
 - `ig.py recent 20`으로 지난 7일 지표: reach, sends_per_reach, saves_per_reach, likes_per_reach, 릴스 평균 시청시간.
 - 상위 2개 / 하위 2개 게시물의 공통점(기둥·훅 유형·포맷·길이)을 `LEARNINGS.md`에 3~5줄로 기록.
 - backlog 재정렬: 잘 된 기둥·훅 유형 비중 ↑. 잘 된 주제는 "2탄"을 backlog 맨 위에.
-- `ig.py refresh`로 토큰 갱신(60일 만료) 후 secrets 커밋.
+- `ig.py refresh`로 토큰 유효성 확인(페이지 토큰은 만료 없음). invalid면 사용자에게 재발급 요청.
 - 주간 요약(팔로워 증감, 베스트 게시물, 다음 주 계획)을 사용자에게 보고.
 
 ## 4. 금지
