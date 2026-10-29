@@ -201,7 +201,7 @@ def autodm(dry=False, max_send=200):
                 params["after"] = after
             r = req("GET", f"{e['media_id']}/comments", params)
             for c in r.get("data", []):
-                if c["id"] in done or _norm(kw) not in _norm(c.get("text")):
+                if c["id"] in done or c.get("username") == CONFIG["handle"].lstrip("@") or _norm(kw) not in _norm(c.get("text")):
                     continue
                 ts = dt.datetime.strptime(c["timestamp"][:19], "%Y-%m-%dT%H:%M:%S").replace(tzinfo=dt.timezone.utc)
                 if (now - ts).days >= 7:
