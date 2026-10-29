@@ -1,0 +1,4 @@
+__pycache__/
+*.raw.mp3
+posts/*/out/reel/frames/
+posts/*/out/reel/cover.png
