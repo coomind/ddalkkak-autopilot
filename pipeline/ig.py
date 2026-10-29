@@ -2,7 +2,8 @@
 """
 Instagram Graph API (Facebook Login, page token) client for @ai.ddalkkak.
 
-Token is kept encrypted in secrets/ig_token.enc (AES-256, passphrase in env IG_PASSPHRASE).
+Token: set IG_SECRET_FILE=/home/claude/ddalkkak-secrets/ig_token.json (private repo).
+Fallback: secrets/ig_token.enc decrypted with env IG_PASSPHRASE.
   python3 pipeline/ig.py me                       # sanity check
   python3 pipeline/ig.py refresh                  # refresh long-lived token (do weekly)
   python3 pipeline/ig.py publish <post_dir> carousel|reel|trial_reel [--dry]
@@ -33,6 +34,18 @@ def _openssl(args, data: bytes) -> bytes:
 
 
 def load_secret() -> dict:
+    # Preferred: plaintext JSON kept in the PRIVATE repo coomind/ddalkkak-secrets (path in IG_SECRET_FILE).
+    f = os.environ.get("IG_SECRET_FILE")
+    if f and Path(f).exists():
+        d = json.loads(Path(f).read_text())
+        d.setdefault("user_id", CONFIG["ig_user_id"])
+        d.setdefault("page_id", CONFIG["fb_page_id"])
+        if "token" not in d and "user_token" in d:
+            # derive the page token from the user's long-lived token at runtime (never written anywhere)
+            u = f"{API}/{d['page_id']}?" + urllib.parse.urlencode({"fields": "access_token", "access_token": d["user_token"]})
+            with urllib.request.urlopen(u, timeout=30) as r:
+                d["token"] = json.loads(r.read().decode())["access_token"]
+        return d
     return json.loads(_openssl(["-d", "-a", "-A"], ENC.read_bytes()).decode())
 
 
@@ -43,7 +56,8 @@ def save_secret(d: dict):
 
 def req(method, path, params=None, data=None, headers=None, url=None):
     params = dict(params or {})
-    sec = load_secret()
+    global _SEC
+    sec = _SEC = _SEC or load_secret()
     params.setdefault("access_token", sec["token"])
     u = url or f"{API}/{path.lstrip('/')}"
     if method == "GET":
@@ -61,8 +75,11 @@ def req(method, path, params=None, data=None, headers=None, url=None):
         raise SystemExit(f"API error {e.code} on {path}: {e.read().decode()[:800]}")
 
 
+_SEC = None
+
+
 def uid():
-    return load_secret()["user_id"]
+    return CONFIG["ig_user_id"]
 
 
 def wait_ready(container_id, timeout=600):

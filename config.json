@@ -19,5 +19,7 @@
   },
   "media_base": "https://cdn.jsdelivr.net/gh/coomind/ddalkkak-autopilot@{sha}/",
   "ig_api_host": "https://graph.facebook.com",
-  "ig_api_version": "v23.0"
+  "ig_api_version": "v23.0",
+  "ig_user_id": "17841432865245021",
+  "fb_page_id": "1438631989325735"
 }

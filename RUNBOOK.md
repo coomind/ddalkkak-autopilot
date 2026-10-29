@@ -20,7 +20,7 @@
 - 캡션 첫 줄과 화면 텍스트에 **검색 키워드**(예: "시험공부 AI", "엑셀 AI") 포함.
 
 ## 2. 매일 할 일 (예약 작업 1회 실행 = 게시물 1개)
-0. 환경: `export IG_PASSPHRASE=<예약 작업 프롬프트에 있는 값>` / `export SSL_CERT_FILE=/root/.ccr/ca-bundle.crt` / `pip install gTTS --break-system-packages -q`
+0. 환경: 비공개 저장소 `coomind/ddalkkak-secrets`를 add_repo 후 clone → `export IG_SECRET_FILE=/home/claude/ddalkkak-secrets/ig_token.json` (내용: {"user_token": "..."} — 페이지 토큰은 실행 시 자동 발급, 사용자 토큰 만료 2026-12-28 전 재발급 필요) / `export SSL_CERT_FILE=/root/.ccr/ca-bundle.crt` / `pip install gTTS --break-system-packages -q`
 1. `git pull` 후 `state/log.jsonl`, `state/backlog.json`, `LEARNINGS.md` 읽기.
 2. **어제 이전 게시물 성과 수집**: `python3 pipeline/ig.py recent 10` → `state/metrics.jsonl`에 append.
 3. **오늘 포맷 결정** (주간 리듬, 성과 학습으로 조정 가능):
